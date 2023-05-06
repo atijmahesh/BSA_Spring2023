@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 
 # Set the path to the directory containing the data files
 data_dir <- "/Users/atijmahesh/Desktop/BSASpring2023"
@@ -16,92 +17,141 @@ read_data <- function(year, data_type) {
   return(data)
 }
 
-# Initialize an empty list to store the means for each year
-yearly_means <- list()
+# Initialize an empty list to store the sums for each year
+yearly_sums <- list()
 
 # Loop over each year
 for (year in 2005:2022) {
   # Read in the receiving and rushing data for the current year
-  receiving_data <- read_data(year, "receiving")
-  rushing_data <- read_data(year, "rushing")
+  receiving_data_original <- read_data(year, "receiving")
+  rushing_data_original <- read_data(year, "rushing")
   
   # Select columns for receiving data
   receiving_cols <- c("Player", "Pos", "Rec", "Yds", "TD")
-  receiving_data <- receiving_data[, receiving_cols]
+  receiving_data <- receiving_data_original[, receiving_cols]
   
   # Filter out rows where "Rec" is less than 5 or "Player" is "Player"
-  receiving_data <- receiving_data %>% 
+  receiving_data <- receiving_data_original %>% 
     filter(Rec >= 1, Player != "Player", Pos != "WR", Pos != "")
   
   # Select columns for rushing data
-  rushing_data <- rushing_data[-1, ]
   rushing_cols <- c("Player", "Pos", "Att", "Yds", "TD")
-  rushing_data <- rushing_data[, rushing_cols]
+  rushing_data <- rushing_data_original[, rushing_cols]
   
   # Filter out rows where "Att" is less than 3 or "Player" is "Player"
-  rushing_data <- rushing_data %>% 
-    filter(Att >= 3, Player != "Player", Pos != "RB", Pos != "")
+  rushing_data <- rushing_data_original %>% 
+    filter(Att >= 1, Player != "Player", Pos != "RB", Pos != "")
   
-  # Calculate the means for each column of receiving data
+  wr_receiving_data <- receiving_data_original %>%
+    filter(Rec >= 1, Player != "Player", Pos == "WR")
+  
+  rb_rushing_data <- rushing_data_original %>%
+    filter(Att >= 1, Player != "Player", Pos == "RB")
+  
+  # Calculate the sums for each column of receiving data
   receiving_data[, c("Rec", "Yds", "TD")] <- lapply(receiving_data[, c("Rec", "Yds", "TD")], as.numeric)
-  receiving_means <- colMeans(receiving_data[, c("Rec", "Yds", "TD")], na.rm = TRUE)
-  names(receiving_means) <- c("Rec_mean", "Yds_mean", "TD_mean")
+  receiving_sums <- colSums(receiving_data[, c("Rec", "Yds", "TD")], na.rm = TRUE)
+  names(receiving_sums) <- c("Non-Receiver Receptions", "Non-Receiver Yards", "Non-Receiver Touchdowns")
   
-  # Calculate the means for each column of rushing data
+  # Calculate the sums for each column of rushing data
   rushing_data[, c("Att", "Yds", "TD")] <- lapply(rushing_data[, c("Att", "Yds", "TD")], as.numeric)
-  rushing_means <- colMeans(rushing_data[, c("Att", "Yds", "TD")], na.rm = TRUE)
-  names(rushing_means) <- c("Att_mean", "Yds_mean", "TD_mean")
+  rushing_sums <- colSums(rushing_data[, c("Att", "Yds", "TD")], na.rm = TRUE)
+  names(rushing_sums) <- c("Non-Running Back Attempts", "Non-Running Back Yards", "Non-Running Back Touchdowns")
   
-  # Store the means for the current year in a list
-  yearly_means[[year]] <- list(receiving_means, rushing_means)
-}
-# Plot the yearly means for rushing data
-# Create an empty list to store the yearly rushing data
-rushing_data <- list()
-
-# Loop over all years in yearly_means
-for (i in seq_along(yearly_means)) {
-  # Extract the rushing data for the current year and store it in the rushing_data list
-  rushing_data[[i]] <- yearly_means[[i]][["rushing"]]
-}
-
-# Initialize empty vectors to store the total stats for each category
-total_rushing_attempts <- numeric()
-total_rushing_yds <- numeric()
-total_rushing_tds <- numeric()
-
-# Loop over all years in yearly_means
-for (i in seq_along(yearly_means)) {
-  # Extract the rushing data for the current year and store it in the rushing_data list
-  rushing_data[[i]] <- yearly_means[[i]][["rushing"]]
+  # Calculate the sums for each column of wr receiving data
+  wr_receiving_data[, c("Rec", "Yds", "TD")] <- lapply(wr_receiving_data[, c("Rec", "Yds", "TD")], as.numeric)
+  wr_receiving_sums <- colSums(wr_receiving_data[, c("Rec", "Yds", "TD")], na.rm = TRUE)
+  names(wr_receiving_sums) <- c("WR Receptions", "WR Yards", "WR Touchdowns")
   
-  # Add the current year's rushing stats to the total vectors
-  total_rushing_attempts <- c(total_rushing_attempts, rushing_data[[i]]$Att_mean)
-  total_rushing_yds <- c(total_rushing_yds, rushing_data[[i]]$Yds_mean)
-  total_rushing_tds <- c(total_rushing_tds, rushing_data[[i]]$TD_mean)
+  # Calculate the sums for each column of rushing data
+  rb_rushing_data[, c("Att", "Yds", "TD")] <- lapply(rb_rushing_data[, c("Att", "Yds", "TD")], as.numeric)
+  rb_rushing_sums <- colSums(rb_rushing_data[, c("Att", "Yds", "TD")], na.rm = TRUE)
+  names(rb_rushing_sums) <- c("RB Attempts", "RB Yards", "RB Touchdowns")
+  
+  # Store the sums for the current year in a list
+  yearly_sums[[year]] <- list(receiving_sums, rushing_sums, wr_receiving_sums, rb_rushing_sums)
+  print(yearly_sums[[year]])
 }
 
-# Set up the plot with the correct axis labels
-plot(2005:2022, total_rushing_attempts, type = "l", ylim = c(0, max(total_rushing_attempts)),
-     xlab = "Year", ylab = "Total Rushing Attempts")
+# Create an empty data frame to store the data
+yearly_rec_yds <- data.frame()
+yearly_rec <- data.frame()
+yearly_rec_tds <- data.frame()
+yearly_att <- data.frame()
+yearly_rush_yds <- data.frame()
+yearly_rush_tds <- data.frame()
+yearly_wr_yds <- data.frame()
+yearly_wr_rec <- data.frame()
+yearly_wr_tds <- data.frame()
+yearly_rb_att <- data.frame()
+yearly_rb_yds <- data.frame()
+yearly_rb_tds <- data.frame()
 
-# Add lines to the plot for the total yards and touchdowns
-lines(2005:2022, total_rushing_yds, col = "blue")
-lines(2005:2022, total_rushing_tds, col = "red")
 
-# Add a legend to the plot
-legend("topleft", legend = c("Attempts", "Yards", "Touchdowns"), col = c("black", "blue", "red"), lty = 1)
-
-# Set up an empty plot with the correct axis labels
-plot(0, ylim = c(0, 100), xlim = c(2005, 2022), xlab = "Year", ylab = "Attempts")
-
-# Loop over each year's data
+# Loop over each year
 for (year in 2005:2022) {
-  # Extract the number of attempts from the "rushing" sublist
-  print(yearly_means[[year]][[2]][2])
-  attempts <- yearly_means[[year]][[2]][3]
+  # Get the sublist for the current year
+  nonwr_year_sums <- yearly_sums[[year]][[1]]
+  yearly_rec <- rbind(yearly_rec, data.frame(year = year, rec = nonwr_year_sums[1]))
+  yearly_rec_yds <- rbind(yearly_rec_yds, data.frame(year = year, rec_yards = nonwr_year_sums[2]))
+  yearly_rec_tds <- rbind(yearly_rec_tds, data.frame(year = year, rec_tds = nonwr_year_sums[3]))
   
-  # Add a point to the plot at the current year and number of attempts
-  points(year, attempts)
+  nonrb_year_sums <- yearly_sums[[year]][[2]]
+  yearly_att <- rbind(yearly_att, data.frame(year = year, att = nonrb_year_sums[1]))
+  yearly_rush_yds <- rbind(yearly_rush_yds, data.frame(year = year, rush_yards = nonrb_year_sums[2]))
+  yearly_rush_tds <- rbind(yearly_rush_tds, data.frame(year = year, rush_tds = nonrb_year_sums[3]))
+  
+  wr_year_sums <- yearly_sums[[year]][[3]]
+  yearly_wr_rec <- rbind(yearly_wr_rec, data.frame(year = year, rec = wr_year_sums[1]))
+  yearly_wr_yds <- rbind(yearly_wr_yds, data.frame(year = year, rec_yards = wr_year_sums[2]))
+  yearly_wr_tds <- rbind(yearly_wr_tds, data.frame(year = year, rec_tds = wr_year_sums[3]))
+  
+  rb_year_sums <- yearly_sums[[year]][[4]]
+  yearly_rb_att <- rbind(yearly_rb_att, data.frame(year = year, att = year_sums[1]))
+  yearly_rb_yds <- rbind(yearly_rb_yds, data.frame(year = year, rush_yards = year_sums[2]))
+  yearly_rb_tds <- rbind(yearly_rb_tds, data.frame(year = year, rush_tds = year_sums[3]))
 }
+
+# set working directory to where you want to save the PDF files
+setwd("/Users/atijmahesh/Desktop/BSASpring2023/Graphs_PDF")
+
+# create a PDF file for each plot
+pdf("yearly_rec.pdf")
+plot(yearly_rec$year, yearly_rec$rec,
+     main = "Non-WR Receptions per Year", xlab = "Year", ylab = "Receptions", type = "l")
+dev.off()
+
+pdf("yearly_rec_yds.pdf")
+plot(yearly_rec_yds$year, yearly_rec_yds$rec_yards,
+     main = "Non-WR Receiving Yards per Year", xlab = "Year", ylab = "Receiving Yards", type = "l")
+dev.off()
+
+pdf("yearly_rec_tds.pdf")
+plot(yearly_rec_tds$year, yearly_rec_tds$rec_tds,
+     main = "Non-WR Receiving TDs per Year", xlab = "Year", ylab = "Receiving TDs", type = "l")
+dev.off()
+
+pdf("yearly_att.pdf")
+plot(yearly_att$year, yearly_att$att,
+     main = "Non-RB Rushing Attempts per Year", xlab = "Year", ylab = "Rushing Attempts", type = "l")
+dev.off()
+
+pdf("yearly_rush_yds.pdf")
+plot(yearly_rush_yds$year, yearly_rush_yds$rush_yards,
+     main = "Non-RB Rushing Yards per Year", xlab = "Year", ylab = "Rushing Yards", type = "l")
+dev.off()
+
+pdf("yearly_rush_tds.pdf")
+plot(yearly_rush_tds$year, yearly_rush_tds$rush_tds,
+     main = "Non-RB Rushing TDs per Year", xlab = "Year", ylab = "Rushing TDs", type = "l")
+dev.off()
+
+
+
+
+
+
+
+
+
 
