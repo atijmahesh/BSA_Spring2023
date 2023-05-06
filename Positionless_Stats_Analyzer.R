@@ -87,7 +87,6 @@ yearly_rb_att <- data.frame()
 yearly_rb_yds <- data.frame()
 yearly_rb_tds <- data.frame()
 
-
 # Loop over each year
 for (year in 2005:2022) {
   # Get the sublist for the current year
@@ -107,10 +106,11 @@ for (year in 2005:2022) {
   yearly_wr_tds <- rbind(yearly_wr_tds, data.frame(year = year, rec_tds = wr_year_sums[3]))
   
   rb_year_sums <- yearly_sums[[year]][[4]]
-  yearly_rb_att <- rbind(yearly_rb_att, data.frame(year = year, att = year_sums[1]))
-  yearly_rb_yds <- rbind(yearly_rb_yds, data.frame(year = year, rush_yards = year_sums[2]))
-  yearly_rb_tds <- rbind(yearly_rb_tds, data.frame(year = year, rush_tds = year_sums[3]))
+  yearly_rb_att <- rbind(yearly_rb_att, data.frame(year = year, att = rb_year_sums[1]))
+  yearly_rb_yds <- rbind(yearly_rb_yds, data.frame(year = year, rush_yards = rb_year_sums[2]))
+  yearly_rb_tds <- rbind(yearly_rb_tds, data.frame(year = year, rush_tds = rb_year_sums[3]))
 }
+
 
 # set working directory to where you want to save the PDF files
 setwd("/Users/atijmahesh/Desktop/BSASpring2023/Graphs_PDF")
@@ -146,12 +146,66 @@ plot(yearly_rush_tds$year, yearly_rush_tds$rush_tds,
      main = "Non-RB Rushing TDs per Year", xlab = "Year", ylab = "Rushing TDs", type = "l")
 dev.off()
 
+# Install required packages if not already installed
+if (!require("tidyverse")) install.packages("tidyverse")
 
+pdf("wr_rec_vs_nonwr_rec")
+ggplot() +
+  geom_col(data=yearly_wr_rec, aes(x=year, y=rec, fill="WRs")) +
+  geom_col(data=yearly_rec, aes(x=year, y=rec, fill="Non-WRs")) +
+  labs(title="Receptions by Position", fill="Position", y="Receptions") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
+pdf("wr_yds_vs_nonwr_yds")
+ggplot() +
+  geom_col(data=yearly_wr_yds, aes(x=year, y=rec_yards, fill="WRs")) +
+  geom_col(data=yearly_rec_yds, aes(x=year, y=rec_yards, fill="Non-WRs")) +
+  labs(title="Receiving Yards by Position", fill="Position", y="Receiving Yards") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
+pdf("wr_tds_vs_nonwr_tds")
+ggplot() +
+  geom_col(data=yearly_wr_tds, aes(x=year, y=rec_tds, fill="WRs")) +
+  geom_col(data=yearly_rec_tds, aes(x=year, y=rec_tds, fill="Non-WRs")) +
+  labs(title="Receiving Touchdowns by Position", fill="Position", y="Receiving Touchdowns") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
+pdf("rb_att_vs_nonrb_att")
+ggplot() +
+  geom_col(data=yearly_rb_att, aes(x=year, y=att, fill="RBs")) +
+  geom_col(data=yearly_att, aes(x=year, y=att, fill="Non-RBs")) +
+  labs(title="Rushing Attempts by Position", fill="Position", y="Rushing Attempts") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("orange", "blue"), name = "Position", labels = c("RBs", "Non-RBs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
+pdf("rb_yds_vs_nonrb_yds")
+ggplot() +
+  geom_col(data=yearly_rb_yds, aes(x=year, y=rush_yards, fill="RBs")) +
+  geom_col(data=yearly_rush_yds, aes(x=year, y=rush_yards, fill="Non-RBs")) +
+  labs(title="Rushing Yards by Position", fill="Position", y="Rushing Yards") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("orange", "blue"), name = "Position", labels = c("RBs", "Non-RBs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
-
-
+pdf("rb_tds_vs_nonrb_tds")
+ggplot() +
+  geom_col(data=yearly_rb_tds, aes(x=year, y=rush_tds, fill="RBs")) +
+  geom_col(data=yearly_rush_tds, aes(x=year, y=rush_tds, fill="Non-RBs")) +
+  labs(title="Rushing Touchdowns by Position", fill="Position", y="Rushing Touchdowns") +
+  scale_x_continuous(breaks = seq(2005, 2022, by = 2)) +
+  scale_fill_manual(values = c("orange", "blue"), name = "Position", labels = c("RBs", "Non-RBs")) +
+  expand_limits(x = c(2005, 2022))
+dev.off()
 
