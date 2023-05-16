@@ -174,7 +174,7 @@ plot(yearly_att$year, yearly_att$att, type = "l", col = "blue",
      ylim = c(0, max(yearly_att$att, yearly_fb_att$att, yearly_wr_att$att))) # Set the y-axis limits accordingly
 lines(yearly_fb_att$year, yearly_fb_att$att, col = "red")
 lines(yearly_wr_att$year, yearly_wr_att$att, col = "green")
-legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1)
+legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1, inset = 0.02) # Adjust the 'inset' parameter to move the legend position
 dev.off()
 
 # Create PDF with rushing yards data
@@ -184,7 +184,7 @@ plot(yearly_rush_yds$year, yearly_rush_yds$rush_yards, type = "l", col = "blue",
      ylim = c(0, max(yearly_rush_yds$rush_yards, yearly_fb_yds$rush_yards, yearly_wr_rush_yds$rush_yards))) # Set the y-axis limits accordingly
 lines(yearly_fb_yds$year, yearly_fb_yds$rush_yards, col = "red")
 lines(yearly_wr_rush_yds$year, yearly_wr_rush_yds$rush_yards, col = "green")
-legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1)
+legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1, inset = 0.02) # Adjust the 'inset' parameter to move the legend position
 dev.off()
 
 # Create PDF with rushing touchdowns data
@@ -194,8 +194,9 @@ plot(yearly_rush_tds$year, yearly_rush_tds$rush_tds, type = "l", col = "blue",
      ylim = c(0, max(yearly_rush_tds$rush_tds, yearly_fb_tds$rush_tds, yearly_wr_rush_tds$rush_tds))) # Set the y-axis limits accordingly
 lines(yearly_fb_tds$year, yearly_fb_tds$rush_tds, col = "red")
 lines(yearly_wr_rush_tds$year, yearly_wr_rush_tds$rush_tds, col = "green")
-legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1)
+legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1, inset = 0.02) # Adjust the 'inset' parameter to move the legend position
 dev.off()
+
 
 
 # Install required packages if not already installed
@@ -208,7 +209,7 @@ ggplot() +
   labs(title="Receptions by Position", fill="Position", y="Receptions") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
 pdf("wr_yds_vs_nonwr_yds.pdf")
@@ -218,7 +219,7 @@ ggplot() +
   labs(title="Receiving Yards by Position", fill="Position", y="Receiving Yards") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
 pdf("wr_tds_vs_nonwr_tds.pdf")
@@ -228,7 +229,7 @@ ggplot() +
   labs(title="Receiving Touchdowns by Position", fill="Position", y="Receiving Touchdowns") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("red", "blue"), name = "Position", labels = c("Non-WRs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
 pdf("rb_att_vs_nonrb_att.pdf")
@@ -240,7 +241,7 @@ ggplot() +
   labs(title="Rushing Attempts by Position", fill="Position", y="Rushing Attempts") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("orange", "blue", "chartreuse", "magenta"), name = "Position", labels = c("FBs", "Non-RBs", "RBs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
 pdf("rb_yds_vs_nonrb_yds.pdf")
@@ -252,7 +253,7 @@ ggplot() +
   labs(title="Rushing Yards by Position", fill="Position", y="Rushing Yards") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("orange", "blue", "chartreuse", "magenta"), name = "Position", labels = c("FBs", "Non-RBs", "RBs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
 
@@ -265,6 +266,6 @@ ggplot() +
   labs(title="Rushing Touchdowns by Position", fill="Position", y="Rushing Touchdowns") +
   scale_x_continuous(breaks = seq(1994, 2022, by = 2)) +
   scale_fill_manual(values = c("orange", "blue", "chartreuse", "magenta"), name = "Position", labels = c("FBs", "Non-RBs", "RBs", "WRs")) +
-  expand_limits(x = c(2005, 2022))
+  expand_limits(x = c(1994, 2022))
 dev.off()
 
