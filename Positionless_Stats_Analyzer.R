@@ -147,6 +147,43 @@ for (year in 1994:2022) {
   yearly_wr_rush_tds <- rbind(yearly_wr_rush_tds, data.frame(year = year, rush_tds = wr_rush_year_sums[3]))
 }
 
+# Create empty vectors to store the values for each group
+group_1_att <- c()
+group_1_yds <- c()
+group_1_tds <- c()
+
+group_2_att <- c()
+group_2_yds <- c()
+group_2_tds <- c()
+
+# Loop over each year
+for (year in 1994:2022) {
+  # Get the sublist for the current year
+  non_rb_year_sums <- yearly_sums[[year]][[2]]
+  
+  # Check if the year belongs to group 1 (1994-2009) or group 2 (2010-2022)
+  if (year >= 1994 && year <= 2009) {
+    group_1_att <- c(group_1_att, non_rb_year_sums[1])
+    group_1_yds <- c(group_1_yds, non_rb_year_sums[2])
+    group_1_tds <- c(group_1_tds, non_rb_year_sums[3])
+  } else if (year >= 2010 && year <= 2022) {
+    group_2_att <- c(group_2_att, non_rb_year_sums[1])
+    group_2_yds <- c(group_2_yds, non_rb_year_sums[2])
+    group_2_tds <- c(group_2_tds, non_rb_year_sums[3])
+  }
+}
+
+# Perform t-tests for each statistic
+t_test_att <- t.test(group_1_att, group_2_att)
+t_test_yds <- t.test(group_1_yds, group_2_yds)
+t_test_tds <- t.test(group_1_tds, group_2_tds)
+
+# Print the t-test results
+print(t_test_att)
+print(t_test_yds)
+print(t_test_tds)
+
+
 
 # set working directory to where you want to save the PDF files
 setwd("/Users/atijmahesh/Desktop/BSASpring2023/Graphs_PDF")
@@ -184,6 +221,16 @@ plot(yearly_rush_yds$year, yearly_rush_yds$rush_yards, type = "l", col = "blue",
      ylim = c(0, max(yearly_rush_yds$rush_yards, yearly_fb_yds$rush_yards, yearly_wr_rush_yds$rush_yards))) # Set the y-axis limits accordingly
 lines(yearly_fb_yds$year, yearly_fb_yds$rush_yards, col = "red")
 lines(yearly_wr_rush_yds$year, yearly_wr_rush_yds$rush_yards, col = "green")
+# Add vertical lines for events
+abline(v = c(2011, 2012, 2018, 2019, 2001), col = "black", lty = 2)
+
+# Add labels to the vertical lines
+text(2011, max(yearly_rush_yds$rush_yards) - 3000, "Cam Newton Drafted", pos = 2, col = "black", srt = 90, cex = 0.8)
+text(2012, max(yearly_rush_yds$rush_yards) - 3000, "Russell Wilson Drafted", pos = 2, col = "black", srt = 90, cex = 0.8)
+text(2018, max(yearly_rush_yds$rush_yards) - 3000, "Lamar Jackson Drafted", pos = 2, col = "black", srt = 90, cex = 0.8)
+text(2019, max(yearly_rush_yds$rush_yards) - 3000, "Deebo Samuel Drafted", pos = 2, col = "black", srt = 90, cex = 0.8)
+text(2001, max(yearly_rush_yds$rush_yards) - 3000, "Michael Vick Drafted", pos = 2, col = "black", srt = 90, cex = 0.8)
+
 legend("topright", legend = c("Non-RB", "Fullback", "Wide Receiver"), col = c("blue", "red", "green"), lty = 1, inset = 0.02) # Adjust the 'inset' parameter to move the legend position
 dev.off()
 
